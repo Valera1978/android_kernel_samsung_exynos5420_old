@@ -36,10 +36,17 @@ static struct uts_namespace *clone_uts_ns(struct task_struct *tsk,
 					  struct uts_namespace *old_ns)
 {
 	struct uts_namespace *ns;
+	int err;
 
 	ns = create_uts_ns();
 	if (!ns)
 		return ERR_PTR(-ENOMEM);
+
+	err = proc_alloc_inum(&ns->proc_inum);
+	if (err) {
+		kfree(ns);
+		return ERR_PTR(err);
+	}
 
 	down_read(&uts_sem);
 	memcpy(&ns->name, &old_ns->name, sizeof(ns->name));
@@ -78,6 +85,7 @@ void free_uts_ns(struct kref *kref)
 
 	ns = container_of(kref, struct uts_namespace, kref);
 	put_user_ns(ns->user_ns);
+	proc_free_inum(ns->proc_inum);
 	kfree(ns);
 }
 

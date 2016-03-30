@@ -62,3 +62,5 @@ endif
 
 # Secure OS Mobicore Interface
 obj-$(CONFIG_MOBICORE_DRIVER)  += tzic.o
+
+obj-$(CONFIG_UID_CPUTIME) += uid_cputime.o
